@@ -1,0 +1,30 @@
+name: Run test 
+
+env:
+  OS: ubuntu-latest
+  
+on:
+  schedule:
+    - cron: '0 9 6 8 *'
+
+jobs:
+  install_dependency_and_run_ui-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Скачиваем селенойд"
+        run: curl -s https://aerokube.com/cm/bash  | bash
+      - name: "Даем права на запуск селенойда"
+        run: chmod +x ./cm
+      - name: "Запускаем selenoid"
+        run: ./cm selenoid start --vnc
+      - name: "Запускаем selenoid-ui"
+        run: ./cm selenoid-ui start
+      - name: "Используем main репозиторий"
+        uses: actions/checkout@v1
+      - name: "Запускаем ui тесты"
+        run: mvn clean test -Dtest=package.uiTests#particularMethod 
+  run_api_tests_with_allure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Запускаем api тесты"
+        run: mvn clean test -Dtest=package.uiTests#particularMethod 
